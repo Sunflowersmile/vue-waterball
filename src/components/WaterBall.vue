@@ -1,126 +1,137 @@
 <template>
-  <div class="wrapper" :style="wrapperStyles">
-    <div class="water" :style="waterStyles"></div>
-  </div>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
+    <defs>
+      <clipPath id="clipPath">
+        <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
+      </clipPath>
+    </defs>
+    <g clip-path="url(#clipPath)">
+      <circle :cx="halfSize" :cy="halfSize" :r="halfSize" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
+      <g>
+        <path :d="pathStr" :stroke="waterColor" :fill="waterColor">
+        </path>
+        <animateTransform attributeName="transform" attributeType="XML" type="translate" from="0" :to="-size" :dur="duration" repeatCount="indefinite">
+        </animateTransform>
+      </g>
+    </g>
+  </svg>
 </template>
 
 <script>
 export default {
-  name: "WaterBall",
+  name: 'WaterBall',
   props: {
     size: {
-      type: [Number, String],
-      default: 200,
+      type: Number,
+      default: 200
     },
     percentage: {
-      type: [Number, String],
-      default: 50,
+      type: Number,
+      default: 0.36
     },
     borderWidth: {
-      type: [Number, String],
-      default: 3,
+      type: Number,
+      default: 5
     },
     borderColor: {
       type: String,
-      default: "red",
+      default: 'red'
     },
     backgroundColor: {
       type: String,
-      default: "#FFF",
+      default: '#FFF'
     },
     waterColor: {
       type: String,
-      default: "#F00",
+      default: '#F00'
+    },
+    duration: {
+      type: String,
+      default: '1.5s'
     },
     amplitude: {
       // 振幅
-      type: [Number, String],
-      default: 20,
+      type: Number,
+      default: 0.1
     },
     waveLength: {
       // 波长
-      type: [Number, String],
-      default: 120,
-    },
+      type: Number,
+      default: 120
+    }
   },
   computed: {
-    wrapperStyles() {
-      let size = this.size,
-        borderWidth = this.borderWidth,
-        borderColor = this.borderColor,
-        backgroundColor = this.backgroundColor;
-      return {
-        width: size + "px",
-        height: size + "px",
-        borderWidth: borderWidth + "px",
-        borderColor,
-        backgroundColor,
-      };
+    halfSize() {
+      return this.size / 2;
     },
-    waterStyles() {
-      let overlay = 5;
-      return {
-        "--waterColor": this.waterColor,
-        "--amplitude": this.amplitude,
-        "--waveLength": this.waveLength,
-        "--waveHeight": this.amplitude * 2 + "px",
-        "--ellipseRadiusX": this.waveLength / 4 + "px",
-        "--ellipseRadiusY": this.amplitude + "px",
-        "--backgroundSizeX": this.waveLength + "px",
-        "--backgroundSizeY": this.amplitude + "px",
-        "--backgroundPositionX": this.waveLength / 2 + "px",
-        "--currentY": this.amplitude - overlay + "px",
-      };
+    minWaveNum() {
+      return Math.ceil(this.size / (this.waveLength / 2)) + 1;
     },
-  },
+    pathStr() {
+      const size = this.size,
+        percentage = this.percentage,
+        halfSize = this.halfSize,
+        amplitude = Math.floor(this.amplitude * halfSize),
+        waveLength = this.waveLength,
+        minWaveNum = this.minWaveNum,
+        halfWaveLength = Math.floor(waveLength / 2),
+        quarterWaveLength = Math.floor(waveLength / 4);
+
+      let lineY = Math.floor(size * (1 - percentage));
+      let arr = [];
+
+      if (minWaveNum < amplitude.length) {
+        arr = arr.concat(amplitude);
+      } else {
+        let loopNum = Math.ceil(minWaveNum / amplitude.length);
+        if (!(minWaveNum % amplitude.length)) {
+          loopNum++;
+        }
+        // for (let i = 0; i < loopNum; i++) {
+        //   arr = arr.concat(amplitude);
+        // }
+
+        arr = arr.concat(...Array(loopNum).fill(amplitude));
+      }
+
+      if (arr.length % 2) {
+        arr.push(amplitude[0]);
+      }
+
+      let str = `m 0 ${lineY} ${arr
+        .map((num, index) => {
+          console.log(num);
+          if (index % 2) {
+            return `q ${quarterWaveLength} ${num} ${halfWaveLength} 0 `;
+          } else {
+            return `q ${quarterWaveLength} -${num} ${halfWaveLength} 0 `;
+          }
+        })
+        .join(' ')} v ${size - lineY} h -${arr.length * halfWaveLength} V`;
+
+      // if (minWaveNum < amplitude.length) {
+      //   for (let i = 0, len = amplitude.length; i < len; i++) {
+      //     // str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
+      //     if (i % 2) {
+      //       str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
+      //     } else {
+      //       str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
+      //     }
+      //   }
+
+      //   str += `v ${size - lineY} h -${amplitude.length * waveLength} V`;
+      // }
+
+      // console.log(str);
+
+      // return 'm 0 100 q 50 -50 100 0 t 100 0 q 50 -50 100 0 t 100 0 v 100 h -400 V';
+      console.log(str);
+      return str;
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.wrapper {
-  border-radius: 50%;
-  border-style: solid;
-  position: relative;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.water {
-  width: 200px;
-  height: 100px;
-  background-color: var(--waterColor);
-  position: absolute;
-  top: 100px;
-}
-
-.water:before {
-  content: "";
-  position: absolute;
-  height: var(--waveHeight);
-  left: 0;
-  right: 0;
-  top: -39px;
-  background: radial-gradient(
-        var(--ellipseRadiusX) var(--ellipseRadiusY) ellipse at
-          var(--ellipseRadiusX) -5px,
-        transparent var(--ellipseRadiusX) var(--ellipseRadiusY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY)
-      )
-      repeat-x,
-    radial-gradient(
-        var(--ellipseRadiusX) var(--ellipseRadiusY) ellipse at
-          var(--ellipseRadiusX) var(--currentY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY),
-        red var(--ellipseRadiusX) var(--ellipseRadiusY),
-        transparent var(--ellipseRadiusX) var(--ellipseRadiusY)
-      )
-      repeat-x;
-  background-size: var(--backgroundSizeX) var(--backgroundSizeY);
-  /* background-position: -40px calc(100% + 62px), 0 calc(100% - 18px); */
-  background-position: 0 var(--currentY), var(--backgroundPositionX) 5px;
-}
 </style>
