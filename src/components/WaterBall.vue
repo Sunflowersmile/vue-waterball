@@ -1,20 +1,26 @@
 <template>
-  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
-    <defs>
-      <clipPath id="clipPath">
-        <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
-      </clipPath>
-    </defs>
-    <g clip-path="url(#clipPath)">
-      <circle :cx="halfSize" :cy="halfSize" :r="halfSize" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
-      <g>
-        <path :d="pathStr" :stroke="waterColor" :fill="waterColor">
-        </path>
-        <animateTransform attributeName="transform" attributeType="XML" type="translate" from="0" :to="-size" :dur="duration" repeatCount="indefinite">
-        </animateTransform>
+  <div class="wrapper" :style="{'--size': `${size}px` }">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
+      <defs>
+        <clipPath id="clipPath">
+          <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
+        </clipPath>
+      </defs>
+      <g clip-path="url(#clipPath)">
+        <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
+        <g id="wave">
+          <path :d="pathStr" :stroke="waterColor" :fill="waterColor">
+            <animate id="animation1" attributeName="d" attributeType="XML" :values="`${pathStr};${toPathStr};${pathStr}`" keyTimes="0;0.5;1" begin="0s" :dur="dur" fill="freeze" repeatCount="indefinite" />
+          </path>
+        </g>
       </g>
-    </g>
-  </svg>
+    </svg>
+    <div class="cover">
+      <slot>
+        <span class="cover-default" :style="{'--fontSize': `${fontSize}px`, '--color': fontColor }">{{percentage | toPercentage}}</span>
+      </slot>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -27,7 +33,7 @@ export default {
     },
     percentage: {
       type: Number,
-      default: 0.36
+      default: 0.5
     },
     borderWidth: {
       type: Number,
@@ -45,93 +51,94 @@ export default {
       type: String,
       default: '#F00'
     },
-    duration: {
+    dur: {
       type: String,
-      default: '1.5s'
+      default: '5s'
     },
     amplitude: {
       // 振幅
       type: Number,
-      default: 0.1
+      default: 0.3
     },
-    waveLength: {
-      // 波长
+    fontSize: {
       type: Number,
-      default: 120
+      default: 20
+    },
+    fontColor: {
+      type: String,
+      default: '#000'
+    }
+  },
+  filters: {
+    toPercentage(percentage) {
+      if (percentage && percentage > 0) {
+        return Number((percentage * 100).toFixed(2)) + '%';
+      }
+      return '';
     }
   },
   computed: {
+    wrapperStyle() {
+      const size = this.size;
+      return {
+        width: size,
+        height: size
+      };
+    },
     halfSize() {
       return this.size / 2;
-    },
-    minWaveNum() {
-      return Math.ceil(this.size / (this.waveLength / 2)) + 1;
     },
     pathStr() {
       const size = this.size,
         percentage = this.percentage,
         halfSize = this.halfSize,
-        amplitude = Math.floor(this.amplitude * halfSize),
-        waveLength = this.waveLength,
-        minWaveNum = this.minWaveNum,
-        halfWaveLength = Math.floor(waveLength / 2),
-        quarterWaveLength = Math.floor(waveLength / 4);
+        quarterSize = Math.ceil(this.size / 4),
+        amplitude = Math.floor(this.amplitude * halfSize);
 
       let lineY = Math.floor(size * (1 - percentage));
-      let arr = [];
 
-      if (minWaveNum < amplitude.length) {
-        arr = arr.concat(amplitude);
-      } else {
-        let loopNum = Math.ceil(minWaveNum / amplitude.length);
-        if (!(minWaveNum % amplitude.length)) {
-          loopNum++;
-        }
-        // for (let i = 0; i < loopNum; i++) {
-        //   arr = arr.concat(amplitude);
-        // }
+      let str = `m 0 ${lineY} q ${quarterSize} ${amplitude} ${halfSize} 0  t ${halfSize} 0 v ${size - lineY} h -${size} V 0`;
+      return str;
+    },
+    toPathStr() {
+      const size = this.size,
+        percentage = this.percentage,
+        halfSize = this.halfSize,
+        quarterSize = Math.ceil(this.size / 4),
+        amplitude = Math.floor(this.amplitude * halfSize);
 
-        arr = arr.concat(...Array(loopNum).fill(amplitude));
-      }
+      let lineY = Math.floor(size * (1 - percentage));
 
-      if (arr.length % 2) {
-        arr.push(amplitude[0]);
-      }
-
-      let str = `m 0 ${lineY} ${arr
-        .map((num, index) => {
-          console.log(num);
-          if (index % 2) {
-            return `q ${quarterWaveLength} ${num} ${halfWaveLength} 0 `;
-          } else {
-            return `q ${quarterWaveLength} -${num} ${halfWaveLength} 0 `;
-          }
-        })
-        .join(' ')} v ${size - lineY} h -${arr.length * halfWaveLength} V`;
-
-      // if (minWaveNum < amplitude.length) {
-      //   for (let i = 0, len = amplitude.length; i < len; i++) {
-      //     // str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
-      //     if (i % 2) {
-      //       str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
-      //     } else {
-      //       str += `q ${quarterWaveLength} -${amplitude[i]} ${quarterWaveLength * 2} 0  t ${quarterWaveLength * 2} 0 `;
-      //     }
-      //   }
-
-      //   str += `v ${size - lineY} h -${amplitude.length * waveLength} V`;
-      // }
-
-      // console.log(str);
-
-      // return 'm 0 100 q 50 -50 100 0 t 100 0 q 50 -50 100 0 t 100 0 v 100 h -400 V';
-      console.log(str);
+      let str = `m 0 ${lineY} q ${quarterSize} -${amplitude} ${halfSize} 0  t ${halfSize} 0 v ${size - lineY} h -${size} V 0`;
       return str;
     }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.wrapper {
+  width: var(--size);
+  height: var(--size);
+  position: relative;
+}
+.cover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+.cover-default {
+  position: absolute;
+  top: 50%;
+  height: 30px;
+  line-height: 30px;
+  margin-top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fontSize);
+  color: var(--color);
+}
 </style>
