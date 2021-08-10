@@ -2,14 +2,17 @@
   <div class="wrapper" :style="{'--size': `${size}px` }">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
       <defs>
-        <clipPath id="clipPath">
+        <clipPath id="clipPath1">
           <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
         </clipPath>
+        <clipPath id="clipPath2">
+          <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth - padding" />
+        </clipPath>
       </defs>
-      <g clip-path="url(#clipPath)">
+      <g clip-path="url(#clipPath1)">
         <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
-        <g id="wave">
-          <path :d="pathStr" :stroke="waterColor" :fill="waterColor">
+        <g id="wave1" clip-path="url(#clipPath2)">
+          <path :d="pathStr" stroke="transparent" :fill="waterColor">
             <animate id="animation1" attributeName="d" attributeType="XML" :values="`${pathStr};${toPathStr};${pathStr}`" keyTimes="0;0.5;1" begin="0s" :dur="dur" fill="freeze" repeatCount="indefinite" />
           </path>
         </g>
@@ -25,7 +28,7 @@
 
 <script>
 export default {
-  name: 'WaterBall',
+  name: 'WaterBall1',
   props: {
     size: {
       type: Number,
@@ -41,7 +44,11 @@ export default {
     },
     borderColor: {
       type: String,
-      default: 'red'
+      default: '#F00'
+    },
+    padding: {
+      type: Number,
+      default: 2
     },
     backgroundColor: {
       type: String,
@@ -133,9 +140,9 @@ export default {
 .cover-default {
   position: absolute;
   top: 50%;
-  height: 30px;
-  line-height: 30px;
-  margin-top: -15px;
+  height: 80px;
+  line-height: 80px;
+  margin-top: -40px;
   left: 50%;
   transform: translateX(-50%);
   font-size: var(--fontSize);

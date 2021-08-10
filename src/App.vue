@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <WaterBall />
+    <WaterBall1 />
+    <WaterBall2 />
   </div>
 </template>
 
 <script>
-import WaterBall from "./components/WaterBall.vue";
+import WaterBall from './components/index.js';
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    WaterBall,
-  },
+    WaterBall1: WaterBall.WaterBall1,
+    WaterBall2: WaterBall.WaterBall2
+  }
 };
 </script>
 

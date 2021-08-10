@@ -2,9 +2,11 @@
   "name": "vue-waterball",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/vue-waterball.umd.js",
+  "module": "dist/vue-waterball.common.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --target lib --name vue-waterball src/components/index.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 # vue-waterball
-Vue module for creating chart like echarts-liquidfill in your application.
+Vue module for creating chart like echarts-liquidfill by SVG in your application.
 
 ## Project setup
 ```
