@@ -1,0 +1,19 @@
+<meta charset="utf-8">
+<title>vue-waterball demo</title>
+<script src="https://unpkg.com/vue"></script>
+<script src="./vue-waterball.umd.js"></script>
+
+<link rel="stylesheet" href="./vue-waterball.css">
+
+
+<div id="app">
+  <demo></demo>
+</div>
+
+<script>
+new Vue({
+  components: {
+    demo: vue-waterball
+  }
+}).$mount('#app')
+</script>
