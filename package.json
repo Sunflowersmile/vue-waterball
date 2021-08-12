@@ -1,13 +1,16 @@
 {
   "name": "vue-waterball",
   "version": "0.1.0",
-  "private": true,
   "main": "dist/vue-waterball.umd.js",
   "module": "dist/vue-waterball.common.js",
+  "description": "Vue module for creating chart like echarts-liquidfill by SVG in your application.",
+  "author": "Li Fan<418206775@qq.com>",
+  "repository": "https://github.com/Sunflowersmile/vue-waterball.git",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name vue-waterball src/components/WaterBall.vue",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "npm run lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
