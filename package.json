@@ -6,7 +6,7 @@
   "module": "dist/vue-waterball.common.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --target lib --name vue-waterball src/components/index.js",
+    "build": "vue-cli-service build --target lib --name vue-waterball src/components/WaterBall.vue",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

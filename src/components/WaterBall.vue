@@ -2,29 +2,37 @@
   <div class="wrapper" :style="{'--size': `${size}px` }">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
       <defs>
-        <clipPath id="clipPath3">
+        <clipPath id="clipPath1">
           <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
         </clipPath>
-        <clipPath id="clipPath4">
+        <clipPath id="clipPath2">
           <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth - padding" />
         </clipPath>
       </defs>
-      <g clip-path="url(#clipPath3)">
+      <g v-if="type === 'vertical'" clip-path="url(#clipPath1)">
+        <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
+        <g clip-path="url(#clipPath2)">
+          <path :d="verticalPathStr" stroke="transparent" :fill="waterColor">
+            <animate id="animation1" attributeName="d" attributeType="XML" :values="`${verticalPathStr};${toVerticalPathStr};${verticalPathStr}`" keyTimes="0;0.5;1" begin="0s" :dur="`${dur}ms`" fill="freeze" repeatCount="indefinite" />
+          </path>
+        </g>
+      </g>
+      <g v-else clip-path="url(#clipPath1)">
         <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
         <defs>
-          <g id="wave2">
-            <path :d="pathStr" stroke="transparent" :fill="waterColor">
+          <g id="wave">
+            <path :d="horizontalPathStr" stroke="transparent" :fill="waterColor">
             </path>
           </g>
         </defs>
-        <g clip-path="url(#clipPath4)">
-          <g class="wave-group-1">
-            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave2" :x="index * waveLength" />
+        <g clip-path="url(#clipPath2)">
+          <g>
+            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave" :x="index * waveLength" />
             <animateTransform id="firstToleft" attributeType="XML" attributeName="transform" begin="0s" :dur="getDur(groupLength)" type="translate" fill="freeze" from="0" :to="-groupLength" />
             <animateTransform attributeType="XML" attributeName="transform" begin="firstToleft.end" :dur="getDur(2 * groupLength)" type="translate" fill="freeze" :values="`${groupLength},0;${-groupLength},0`" calcMode="linear" keyTimes="0;1" repeatCount="indefinite" />
           </g>
-          <g class="wave-group-2" :transform="`translate(${groupLength},0)`">
-            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave2" :x="index * waveLength" />
+          <g :transform="`translate(${groupLength},0)`">
+            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave" :x="index * waveLength" />
             <animateTransform attributeType="XML" attributeName="transform" begin="0s" :dur="getDur(2 * groupLength)" type="translate" fill="freeze" :values="`${groupLength},0;${-groupLength},0`" calcMode="linear" keyTimes="0;1" repeatCount="indefinite" />
           </g>
         </g>
@@ -40,7 +48,7 @@
 
 <script>
 export default {
-  name: 'WaterBall2',
+  name: 'WaterBall',
   props: {
     size: {
       type: Number,
@@ -58,6 +66,10 @@ export default {
       type: String,
       default: '#F00'
     },
+    padding: {
+      type: Number,
+      default: 2
+    },
     backgroundColor: {
       type: String,
       default: '#FFF'
@@ -66,14 +78,10 @@ export default {
       type: String,
       default: '#F00'
     },
-    padding: {
+    dur: {
+      // ms
       type: Number,
-      default: 2
-    },
-    speed: {
-      // px/s
-      type: Number,
-      default: 50
+      default: 5000
     },
     amplitude: {
       // 振幅
@@ -92,6 +100,10 @@ export default {
     fontColor: {
       type: String,
       default: '#000'
+    },
+    type: {
+      type: String, // horizontal, vertical
+      default: 'vertical'
     }
   },
   filters: {
@@ -103,16 +115,47 @@ export default {
     }
   },
   computed: {
-    halfSize() {
-      return this.size / 2;
-    },
     minWaveNum() {
       return Math.ceil(this.size / this.waveLength);
     },
     groupLength() {
       return this.minWaveNum * this.waveLength;
     },
-    pathStr() {
+    wrapperStyle() {
+      const size = this.size;
+      return {
+        width: size,
+        height: size
+      };
+    },
+    halfSize() {
+      return this.size / 2;
+    },
+    verticalPathStr() {
+      const size = this.size,
+        percentage = this.percentage,
+        halfSize = this.halfSize,
+        quarterSize = Math.ceil(this.size / 4),
+        amplitude = Math.floor(this.amplitude * halfSize);
+
+      let lineY = Math.floor(size * (1 - percentage));
+
+      let str = `m 0 ${lineY} q ${quarterSize} ${amplitude} ${halfSize} 0  t ${halfSize} 0 v ${size - lineY} h -${size} V 0`;
+      return str;
+    },
+    toVerticalPathStr() {
+      const size = this.size,
+        percentage = this.percentage,
+        halfSize = this.halfSize,
+        quarterSize = Math.ceil(this.size / 4),
+        amplitude = Math.floor(this.amplitude * halfSize);
+
+      let lineY = Math.floor(size * (1 - percentage));
+
+      let str = `m 0 ${lineY} q ${quarterSize} -${amplitude} ${halfSize} 0  t ${halfSize} 0 v ${size - lineY} h -${size} V 0`;
+      return str;
+    },
+    horizontalPathStr() {
       const size = this.size,
         percentage = this.percentage,
         halfSize = this.halfSize,
@@ -127,14 +170,14 @@ export default {
       return str;
     },
     getDur() {
-      let speed = this.speed;
       return distance => {
-        return (distance / speed).toFixed(1) + 's';
+        return (distance / this.waveLength) * this.dur + 'ms';
       };
     }
   }
 };
 </script>
+
 <style scoped>
 .wrapper {
   width: var(--size);
