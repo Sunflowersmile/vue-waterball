@@ -1,6 +1,6 @@
 {
   "name": "vue-waterball",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/vue-waterball.umd.js",
   "module": "dist/vue-waterball.common.js",
   "description": "Vue module for creating chart like echarts-liquidfill by SVG in your application.",
