@@ -84,12 +84,10 @@ export default {
       default: 5000
     },
     amplitude: {
-      // 振幅
       type: Number,
       default: 0.3
     },
     waveLength: {
-      // 波长
       type: Number,
       default: 200
     },
