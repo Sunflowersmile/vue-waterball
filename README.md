@@ -5,6 +5,7 @@ Vue module for creating chart like echarts-liquidfill by SVG in your application
 ## Examples
 ![](./public/images/GIF.gif)
 ![](./public/images/GIF2.gif)
+![](./public/images/GIF3.gif)
 
 ## Requirements
 Vue.js 2.x
@@ -48,3 +49,6 @@ template:
 | font-size        | font size                                                                  | number | -                         | 20         |
 | font-color       | font color                                                                 | string | -                         | '#000'     |
 | type             | wave direction                                                             | string | 'horizontal' / 'vertical' | 'vertical' |
+
+## Slot
+default slot will replace the center text.
