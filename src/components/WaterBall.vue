@@ -2,37 +2,40 @@
   <div class="wrapper" :style="{'--size': `${size}px` }">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" :viewBox="`0 0 ${size} ${size}`">
       <defs>
-        <clipPath id="clipPath1">
+        <clipPath :id="'waterball-clip-path-default-' + hashKey">
           <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
         </clipPath>
-        <clipPath id="clipPath2">
+        <clipPath :id="'waterball-clip-path-outer-' + hashKey">
+          <circle :cx="halfSize" :cy="halfSize" :r="halfSize" />
+        </clipPath>
+        <clipPath :id="'waterball-clip-path-inner-' + hashKey">
           <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth - padding" />
         </clipPath>
       </defs>
-      <g v-if="type === 'vertical'" clip-path="url(#clipPath1)">
+      <g v-if="type === 'vertical'" :clip-path="outerClipPath">
         <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
-        <g clip-path="url(#clipPath2)">
+        <g :clip-path="innerClipPath">
           <path :d="verticalPathStr" stroke="transparent" :fill="waterColor">
-            <animate id="animation1" attributeName="d" attributeType="XML" :values="`${verticalPathStr};${toVerticalPathStr};${verticalPathStr}`" keyTimes="0;0.5;1" begin="0s" :dur="`${dur}ms`" fill="freeze" repeatCount="indefinite" />
+            <animate attributeName="d" attributeType="XML" :values="`${verticalPathStr};${toVerticalPathStr};${verticalPathStr}`" keyTimes="0;0.5;1" begin="0s" :dur="`${dur}ms`" fill="freeze" repeatCount="indefinite" />
           </path>
         </g>
       </g>
-      <g v-else clip-path="url(#clipPath1)">
+      <g v-else :clip-path="outerClipPath">
         <circle :cx="halfSize" :cy="halfSize" :r="halfSize - borderWidth / 2" :stroke-width="borderWidth" :stroke="borderColor" :fill="backgroundColor" />
         <defs>
-          <g id="wave">
+          <g :id="'waterball-wave-' + hashKey">
             <path :d="horizontalPathStr" stroke="transparent" :fill="waterColor">
             </path>
           </g>
         </defs>
-        <g clip-path="url(#clipPath2)">
+        <g :clip-path="innerClipPath">
           <g>
-            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave" :x="index * waveLength" />
-            <animateTransform id="firstToleft" attributeType="XML" attributeName="transform" begin="0s" :dur="getDur(groupLength)" type="translate" fill="freeze" from="0" :to="-groupLength" />
-            <animateTransform attributeType="XML" attributeName="transform" begin="firstToleft.end" :dur="getDur(2 * groupLength)" type="translate" fill="freeze" :values="`${groupLength},0;${-groupLength},0`" calcMode="linear" keyTimes="0;1" repeatCount="indefinite" />
+            <use v-for="(i, index) in minWaveNum" :key="i" :xlink:href="wave" :x="index * waveLength" />
+            <animateTransform id="firstWaveToleft" attributeType="XML" attributeName="transform" begin="0s" :dur="getDur(groupLength)" type="translate" fill="freeze" from="0" :to="-groupLength" />
+            <animateTransform attributeType="XML" attributeName="transform" begin="firstWaveToleft.end" :dur="getDur(2 * groupLength)" type="translate" fill="freeze" :values="`${groupLength},0;${-groupLength},0`" calcMode="linear" keyTimes="0;1" repeatCount="indefinite" />
           </g>
           <g :transform="`translate(${groupLength},0)`">
-            <use v-for="(i, index) in minWaveNum" :key="i" xlink:href="#wave" :x="index * waveLength" />
+            <use v-for="(i, index) in minWaveNum" :key="i" :xlink:href="wave" :x="index * waveLength" />
             <animateTransform attributeType="XML" attributeName="transform" begin="0s" :dur="getDur(2 * groupLength)" type="translate" fill="freeze" :values="`${groupLength},0;${-groupLength},0`" calcMode="linear" keyTimes="0;1" repeatCount="indefinite" />
           </g>
         </g>
@@ -103,6 +106,16 @@ export default {
       type: String, // horizontal, vertical
       default: 'vertical'
     }
+  },
+  data() {
+    const hashKey = Math.ceil(Math.random() * 10000);
+    return {
+      hashKey: Object.freeze(hashKey),
+      defaultClipPath: `url(#waterball-clip-path-outer-${hashKey})`,
+      innerClipPath: `url(#waterball-clip-path-inner-${hashKey})`,
+      outerClipPath: `url(#waterball-clip-path-outer-${hashKey})`,
+      wave: `#waterball-wave-${hashKey}`
+    };
   },
   filters: {
     toPercentage(percentage) {
