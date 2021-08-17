@@ -177,7 +177,7 @@ export default {
 
       let lineY = Math.floor(size * (1 - percentage));
 
-      let str = `m 0 ${lineY} q ${quarterWaveLength} -${amplitude} ${halfWaveLength} 0  t ${halfWaveLength} 0 v ${size - lineY} h -${waveLength} V 0`;
+      let str = `m 0 ${lineY} q ${quarterWaveLength} -${amplitude} ${halfWaveLength} 0  t ${halfWaveLength + 1} 0 v ${size - lineY} h -${waveLength + 1} V 0`;
       return str;
     },
     getDur() {
