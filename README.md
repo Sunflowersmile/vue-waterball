@@ -60,3 +60,9 @@ template:
 
 ## Slot
 default slot will replace the center text.
+
+## Supports
+
+![](./public/images/caniuse-clipPath.png)
+![](./public/images/caniuse-animate.png)
+![](./public/images/caniuse-animateTransform.png)
