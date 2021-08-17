@@ -7,7 +7,7 @@ Vue module for creating chart like echarts-liquidfill by SVG in your application
 ![](https://img.shields.io/bundlephobia/min/vue-waterball)
 ![](https://img.shields.io/bundlephobia/minzip/vue-waterball)
 ![](https://img.shields.io/npm/dw/vue-waterball)
-![](https://img.shields.io/npm/l/vue-waterball)
+![](https://img.shields.io/github/license/Sunflowersmile/vue-waterball)
 ![](https://img.shields.io/github/last-commit/Sunflowersmile/vue-waterball)
 
 ## Examples
