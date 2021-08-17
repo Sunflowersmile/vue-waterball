@@ -4,7 +4,8 @@
   "main": "dist/vue-waterball.umd.js",
   "module": "dist/vue-waterball.common.js",
   "description": "Vue module for creating chart like echarts-liquidfill by SVG in your application.",
-  "author": "Li Fan<418206775@qq.com>",
+  "author": "Sunflowersmile<418206775@qq.com>",
+  "license": "MIT",
   "repository": "https://github.com/Sunflowersmile/vue-waterball.git",
   "keywords": [
     "vue",
